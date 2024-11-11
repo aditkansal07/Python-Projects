@@ -1,0 +1,125 @@
+import pygame
+import random
+
+# Initialize pygame
+pygame.init()
+
+# Constants
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+PLAYER_SIZE = 50
+ENEMY_SIZE = 50
+PLAYER_COLOR = (255, 0, 0)
+ENEMY_COLOR = (0, 0, 0)
+BACKGROUND_COLOR = (0, 255, 0)
+ENEMY_COUNT = 5
+SPEED = 7.5
+LEVEL_UP_SCORE = 10
+LIVES = 3
+
+# Load fonts
+font = pygame.font.SysFont("monospace", 35)
+large_font = pygame.font.SysFont("monospace", 75)
+
+# Set up the display
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Dodge the Enemies")
+
+
+def draw_player(screen, position):
+    pygame.draw.rect(screen, PLAYER_COLOR, (position[0], position[1], PLAYER_SIZE, PLAYER_SIZE))
+
+
+def draw_enemy(screen, position):
+    pygame.draw.rect(screen, ENEMY_COLOR, (position[0], position[1], ENEMY_SIZE, ENEMY_SIZE))
+
+
+def detect_collision(player_pos, enemy_pos):
+    p_x, p_y = player_pos
+    e_x, e_y = enemy_pos
+
+    if (e_x < p_x < e_x + ENEMY_SIZE or e_x < p_x + PLAYER_SIZE < e_x + ENEMY_SIZE) and \
+       (e_y < p_y < e_y + ENEMY_SIZE or e_y < p_y + PLAYER_SIZE < e_y + ENEMY_SIZE):
+        return True
+    return False
+
+
+def display_message(screen, message, size, color, position):
+    font = pygame.font.SysFont("monospace", size)
+    label = font.render(message, True, color)
+    screen.blit(label, position)
+
+
+def main():
+    clock = pygame.time.Clock()
+    player_pos = [SCREEN_WIDTH // 2, SCREEN_HEIGHT - 2 * PLAYER_SIZE]
+    enemy_positions = [[random.randint(0, SCREEN_WIDTH - ENEMY_SIZE), random.randint(-SCREEN_HEIGHT, 0)]
+                       for _ in range(ENEMY_COUNT)]
+    level = 1
+    score = 0
+    lives = LIVES
+    game_over = False
+
+    while not game_over:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and player_pos[0] > 0:
+            player_pos[0] -= SPEED
+        if keys[pygame.K_RIGHT] and player_pos[0] < SCREEN_WIDTH - PLAYER_SIZE:
+            player_pos[0] += SPEED
+        if keys[pygame.K_UP] and player_pos[1] > 0:
+            player_pos[1] -= SPEED
+        if keys[pygame.K_DOWN] and player_pos[1] < SCREEN_HEIGHT - PLAYER_SIZE:
+            player_pos[1] += SPEED
+
+        screen.fill(BACKGROUND_COLOR)
+
+        for enemy_pos in enemy_positions:
+            enemy_pos[1] += SPEED + level  # Increase speed with level
+            if enemy_pos[1] >= SCREEN_HEIGHT:
+                enemy_pos[1] = random.randint(-100, 0)
+                enemy_pos[0] = random.randint(0, SCREEN_WIDTH - ENEMY_SIZE)
+                score += 1
+                if score % LEVEL_UP_SCORE == 0:
+                    level += 1
+
+            if detect_collision(player_pos, enemy_pos):
+                lives -= 1
+                if lives <= 0:
+                    game_over = True
+                else:
+                    player_pos = [SCREEN_WIDTH // 2, SCREEN_HEIGHT - 2 * PLAYER_SIZE]  # Reset player position
+                    enemy_positions = [[random.randint(0, SCREEN_WIDTH - ENEMY_SIZE), random.randint(-SCREEN_HEIGHT, 0)]
+                                       for _ in range(ENEMY_COUNT)]
+
+            draw_enemy(screen, enemy_pos)
+
+        draw_player(screen, player_pos)
+
+        # Display the score, lives, and level
+        score_text = font.render(f"Score: {score}", True, (255, 0, 0))
+        screen.blit(score_text, (10, 10))
+        lives_text = font.render(f"Lives: {lives}", True, (0, 0, 0))
+        screen.blit(lives_text, (10, 50))
+        level_text = font.render(f"Level: {level}", True, (0, 0, 255))
+        screen.blit(level_text, (10, 90))
+
+        pygame.display.flip()
+        clock.tick(30)
+
+    # Game Over Screen
+    screen.fill(BACKGROUND_COLOR)
+    display_message(screen, "Game Over", 75, (255, 0, 0), (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 3))
+    display_message(screen, f"Final Score: {score}", 50, (0, 0, 0), (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2))
+    pygame.display.flip()
+    pygame.time.wait(3000)
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()
