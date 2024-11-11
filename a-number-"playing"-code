@@ -1,0 +1,14 @@
+number = int(input("Enter A Number:\n"))
+while True:
+    if number <= 0:
+        print("Invalid Try Again:\n")
+        number = int(input(""))
+    else:
+        break
+while True:
+    if number != -1:
+        bop = "◾" * number
+        print(bop, + number)
+        number = number - 1
+    else:
+        break
