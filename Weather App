@@ -1,0 +1,31 @@
+#download "requests" library first before using
+import requests
+import json
+
+# http://api.ipify.org/ provides IP Address
+ip_address = requests.get("http://api.ipify.org/").text
+
+print(f"My IP Address is " + ip_address)
+
+# find the lat and long from http://ip-api.com. The following request returns a dictionary
+geo_data = requests.get(f'http://ip-api.com/json/{ip_address}').json()
+
+print(geo_data)
+
+latitude = geo_data['lat']
+longitude = geo_data['lon']
+
+print(f"My Latitude is {latitude} and my Longitude is {longitude}")
+
+# Call the Weather Service end point (API) with Latitude and Longitude
+weatherserviceresponse = requests.get(f'https://api.weather.gov/points/{latitude},{longitude}').json()
+
+print (weatherserviceresponse)
+
+weather_service_response_pretty = json.dumps(weatherserviceresponse, indent=2)
+
+print(weather_service_response_pretty)
+
+forecast_response = requests.get("https://api.weather.gov/gridpoints/SEW/131,78/forecast").json()
+forecast_response_pretty = json.dumps(forecast_response, indent=2)
+print(forecast_response_pretty)
