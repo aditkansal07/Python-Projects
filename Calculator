@@ -1,0 +1,29 @@
+import sys
+import math
+A = float(input("Give me a number:\n"))
+B = float(input("Give me another number:\n"))
+
+
+def operation():
+    operate = input(" Enter the number corresponding to your operation: 1 - Add, 2 - Subtract, 3 - Multiply, 4 - Divide, or 5 - Square Root of Sum of Given Values.\n")
+    # operate = operate.capitalize() <-- Only use if using words as input in variable operate string
+    if operate == "1":
+        print(A + B)
+        sys.exit(1)
+    if operate == "2":
+        print(A - B)
+        sys.exit(2)
+    if operate == "3":
+        print(A * B)
+        sys.exit(3)
+    if operate == "4":
+        print(A / B)
+        sys.exit(4)
+    if operate == "5":
+        print(math.sqrt(A + B))
+        sys.exit(5)
+    else:
+        operation()
+
+
+operation()
