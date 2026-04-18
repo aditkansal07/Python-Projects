@@ -1,0 +1,40 @@
+#04/18/2026 Air quality check based on the zip code of an area using a third party api
+#Adit Kansal 
+
+from tkinter import *
+from PIL import ImageTk, Image
+import requests
+import json
+
+root=Tk()
+root.title("Air quality detector")
+root.geometry("800x40")
+root.configure(background='green')
+
+city = "Unknown"
+quality = "N/A"
+category = "Unknown"
+status_text = "Unable to fetch air quality."
+
+try:
+	api_request = requests.get(
+		"http://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=75023&distance=10&API_KEY=1415D85E-FB89-40EF-B8F0-63F99A595BC8",
+		timeout=10
+	)
+	api_request.raise_for_status()
+	api = api_request.json()
+	if isinstance(api, list) and len(api) > 0 and isinstance(api[0], dict):
+		city = api[0].get('ReportingArea', city)
+		quality = api[0].get('AQI', quality)
+		category = api[0].get('Category', {}).get('Name', category)
+		status_text = f"{city} Air Quality: {quality} ({category})"
+	else:
+		status_text = "No air quality data available."
+except Exception:
+	status_text = "Unable to fetch air quality."
+
+myLabel = Label(root, text=status_text, font=("Helvetica", 20), background="green")
+myLabel.pack()
+
+
+root.mainloop()
